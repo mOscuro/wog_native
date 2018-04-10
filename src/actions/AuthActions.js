@@ -23,17 +23,33 @@ export const passwordChanged = (text) => {
 
 export const loginUser = ({ email, password }) => {   
     return (dispatch) => {
-        dispatch({ type: LOGIN_USER })
+        // dispatch({ type: LOGIN_USER })
         
         console.log('email = ' + email);
         console.log('pass = ' + password);
 
-        if (email == 'moscuro@wog.com' && password == 'moscuro') {
-            const user = { id: 1, name: 'matthieu' }
-            loginUserSuccess(dispatch, user);
-        }else{
-            loginUserFail(dispatch);
-        }
+        fetch('10.0.2.2:8000/auth/login/', {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: email,
+              password: password,
+            }),
+          })
+          .then((response) => console.log(response))
+          .catch((error) => {
+            console.error(error);
+          });
+
+        // if (email == 'moscuro@wog.com' && password == 'moscuro') {
+        //     const user = { id: 1, name: 'matthieu' }
+        //     loginUserSuccess(dispatch, user);
+        // }else{
+        //     loginUserFail(dispatch);
+        // }
 
     };
 };
