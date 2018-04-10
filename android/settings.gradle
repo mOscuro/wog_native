@@ -1,0 +1,3 @@
+rootProject.name = 'wog_native'
+
+include ':app'
