@@ -1,3 +1,4 @@
+import { AsyncStorage } from 'react-native';
 import { Actions } from 'react-native-router-flux';
 import {
     EMAIL_CHANGED,
@@ -6,6 +7,7 @@ import {
     LOGIN_USER_FAIL,
     LOGIN_USER
 } from './types';
+import { URL_USER_LOGIN } from '../env_vars.js';
 
 export const emailChanged = (text) => {
     return {
@@ -21,6 +23,12 @@ export const passwordChanged = (text) => {
     };
 };
 
+async function persist_token(value) {
+    console.log('tooooken');
+    console.log(value);
+    await AsyncStorage.setItem('token', value);
+}
+
 export const loginUser = ({ email, password }) => {   
     return (dispatch) => {
         // dispatch({ type: LOGIN_USER })
@@ -28,18 +36,38 @@ export const loginUser = ({ email, password }) => {
         console.log('email = ' + email);
         console.log('pass = ' + password);
 
-        fetch('10.0.2.2:8000/auth/login/', {
+        fetch('http://192.168.104.76:8085/auth/login/', {
             method: 'POST',
             headers: {
               'Accept': 'application/json',
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              email: email,
-              password: password,
+              email: 'user1@wogether.com',
+              password: 'Password44$',
             }),
           })
-          .then((response) => console.log(response))
+          .then((response) => {
+                if(response.status == 200){  
+                    return response.json();
+                }else{
+                    loginUserFail(dispatch);
+                }
+            })
+          .then((json) => {
+              console.log(json);
+              
+                const { id, email, first_name, last_name, key } = json;
+                
+                const user = { id, email, first_name, last_name, token: key };
+                console.log(user.token);
+                console.log(user.id);
+
+                // Store to async storage
+                persist_token(user.token);
+
+                loginUserSuccess(dispatch, user);
+            })
           .catch((error) => {
             console.error(error);
           });
@@ -53,7 +81,6 @@ export const loginUser = ({ email, password }) => {
 
     };
 };
-
 
 const loginUserSuccess = (dispatch, user) => {
     dispatch({
