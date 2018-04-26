@@ -23,10 +23,13 @@ export const passwordChanged = (text) => {
     };
 };
 
-async function persist_token(value) {
-    console.log('tooooken');
-    console.log(value);
-    await AsyncStorage.setItem('token', value);
+async function persist_user(value) {
+    await AsyncStorage.setItem('user', value);
+    try {
+        return await AsyncStorage.setItem('token', value);
+    } catch (error) {
+        console.error('AsyncStorage#setItem error: ' + error.message);
+    }
 }
 
 export const loginUser = ({ email, password }) => {   
@@ -60,11 +63,9 @@ export const loginUser = ({ email, password }) => {
                 const { id, email, first_name, last_name, key } = json;
                 
                 const user = { id, email, first_name, last_name, token: key };
-                console.log(user.token);
-                console.log(user.id);
 
                 // Store to async storage
-                persist_token(user.token);
+                persist_user(user);
 
                 loginUserSuccess(dispatch, user);
             })
